@@ -1,16 +1,16 @@
 %% -*- erlang -*-
-{application, barista,
+{application, lmuginets,
  [
   %% A quick description of the application.
-  {description, "Hot lmugs of LFE for your simple HTTP needs."},
+  {description, "An lmug adapter for the OTP inets web server"},
 
   %% The version of the application
-  {vsn, "0.0.3"},
+  {vsn, "0.0.1"},
 
   %% All modules used by the application.
   {modules,
    [
-    'barista'
+    lmuginets
    ]},
 
   %% All of the registered names the application uses. This can be ignored.

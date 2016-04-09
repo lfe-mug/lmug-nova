@@ -1,4 +1,4 @@
-(defmodule barista-lmug
+(defmodule lmug-inets-svr
   (export all))
 
 (defun get-default-options ()

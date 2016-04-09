@@ -1,119 +1,108 @@
-# barista
+# lmug-inets
 
-*Barista serves up hot lmugs of LFE for your simple LFE-native HTTP needs.*
+[![img](https://travis-ci.org/lfe-mug/lmug-inets.svg)](https://travis-ci.org/lfe-mug/lmug-inets)
+[![img](https://img.shields.io/github/tag/lfe-mug/lmug-inets.svg)](https://github.com/lfe-mug/lmug-inets/releases/latest)
+[![img](https://img.shields.io/badge/erlang-%E2%89%A5R16B03-red.svg)](http://www.erlang.org/downloads)
+[![img](https://img.shields.io/badge/docs-67%25-green.svg)](http://lfe-mug.github.io/lmug-inets)
+[![img](https://img.shields.io/badge/license-Apache-blue.svg)](LICENSE)
 
-<img src="resources/images/barista.png" />
+[![][lmug-logo]][lmug-logo-large]
 
+[lmug-logo]: priv/images/lmug-inets.png
+[lmug-logo-large]: priv/images/lmug-inets-large.png
 
-## Introduction
-
-Barista is a stand-alone, simple HTTP server. Or more accurately, barista
-is LFE code that wraps the Erlang/OTP ``httpd`` HTTP server. It is intended
-for a couple of simple uses:
-
-* development and demo purposes
-* quickly and easily testing of lmug middleware
-
-This is the first HTTP server which supports the
-[lmug Spec](https://github.com/lfex/lmug/blob/master/doc/SPEC.md) for creating
-HTTP middleware (and lmug-compliant HTTP servers) in Erlang/LFE.
-
-If you would like to use a production-ready HTTP server with lmug middleware,
-be sure to check out the other options:
-
-* [lmug-yaws](https://github.com/lfex/lmug-yaws) (in development)
-* [lmug-cowboy](https://github.com/lfex/lmug-cowboy) (in development)
+*An lmug adapter for the OTP inets web server*
 
 
-## Installation
+##### Contents
 
-Just add it to your ``rebar.config`` deps:
+* [Introduction](#introduction-)
+* [Installation](#installation-)
+* [Documentation](#documentation-)
+* [Usage](#usage-)
+* [License](#license-)
+
+
+## Introduction [&#x219F;](#contents)
+
+Like Clojure's Ring before it, LFE's lmug provides the LFE programmer a means
+for creating middleware between an HTTP server request and the response that
+is returned to the client.
+
+In particular, lmug-inets implements an lmug adaptor for use with the
+Erlang/OTP inets http server, allowing lmug middleware to run on the OTP inets
+web server by adapting lmug requests, responses, and handlers to the Erlang Web
+Server API (EWSAPI).
+
+
+### EWSAPI [&#x219F;](#contents)
+
+While lmug middleware accept handlers as arguments with these handlers each
+being functions in their own right (and which accept a request record as an
+argument), EWSAPI modules (the inets http version of "middleware") are a little
+more diverse. Unlike lumg middleware, they don't just return additional
+handlers, rather they may return any one of the following (see
+[inets httpd Reference Manual](http://erlang.org/doc/man/httpd.html)):
+
+* ``#(proceed old-data)``
+* ``#(proceed new-data)``
+* ``#(break new-data)``
+* ``done``
+
+Although this allows for a great deal of flexibility when writting EWSAPI
+middleware, it also means that not all middleware may be treated equally --
+some will expect data in one format and not in others, some will be used
+to prepare data for different middleware further down the chain.
+
+To keep things simple during the initial implementation of the inet http
+lmug adaptor, the only ``new-data`` that is supported are of the following
+forms:
+
+```lisp
+`(#(response #(,status-code ,body)))
+```
+or
+```lisp
+`(#(response #(response
+               (#(code ,status-code)
+                #(,header-name ,header-value)
+                ...)
+               ,body)))
+```
+
+EWSAPI modules define a ``do/1`` function that gets called when the web
+server processes each request. A list of modules is provided to the
+server in the configuration, and all requests are sent through this chain
+of modules.
+
+The lmug-inets adaptor provides the ``lmug-inets:do/1`` function that may
+be inserted into the chain of EWSAPI modules when configuring a EWSAPI
+web server. ``lmug-inets:do/1`` utilizes the lmug-inets adaptor and
+appropriately converts requests, responses, and handlers.
+
+
+## Installation [&#x219F;](#contents)
 
 ```erlang
-    {deps, [
-        ...
-        {barista, ".*", {git, "git@github.com:lfex/barista.git", "master"}}
-      ]}.
+{deps, [
+   {lmuginets, {git, "https://github.com/lfe-mug/lmug-inets.git", {tag, "0.0.1"}}}
+  ]}.
 ```
 
-And then do the usual:
+## Documentation [&#x219F;](#contents)
 
-```bash
-    $ rebar get-deps
-    $ rebar compile
+TBD
+
+
+## Usage [&#x219F;](#contents)
+
+TBD
+
+
+## License [&#x219F;](#contents)
+
 ```
+Copyright © 2016 LFE Dragon Team
 
-
-## Usage
-
-NOTE: barista by itself isn't very compelling; it's just a convenient LFE
-wrapper around Erlang/OTP's ``httpd``. It's much more meaningful when used
-as part of lmug.
-
-As such, keep in mind that the following usage is "toy"; see the
-[lmug](https://github.com/lfex/lmug) project for more interesting use cases.
-
-```bash
-$ make repl
-```
-
-Then, from the LFE REPL:
-
-```cl
-> (defun handler (request) "Wassup?")
-handler
-> (barista:start #'handler/1)
-Starting handler loop ...
-ok
-```
-
-Or, if you want to start barista on a non-default port (something other than
-1206), you can do this instead:
-
-```cl
-> (barista:start #'handler/1 '(#(port 8000)))
-Starting handler loop ...
-ok
-```
-
-Then, make a request:
-
-```bash
-$ curl -D- -X GET http://localhost:1206/
-HTTP/1.1 200 OK
-Server: inets/5.10
-Content-Type: text/html
-Date: Tue, 26 Aug 2014 04:02:57 GMT
-Content-Length: 9
-
-"Wassup?"
-```
-
-Instead of replacing the request data with a string, let's pass the data:
-
-```cl
-> (barista:stop)
-ok
-> (defun handler (request) request)
-handler
-> (barista:start #'handler/1)
-Starting handler loop ...
-ok
-```
-
-Let's try this one out:
-
-```bash
-$ curl -D- -X PUT http://localhost:1206/a/b/c
-HTTP/1.1 200 OK
-Server: inets/5.10
-Content-Type: text/html
-Date: Tue, 26 Aug 2014 03:59:47 GMT
-Content-Length: 277
-
-{mod,{init_data,{51709,"127.0.0.1"},"korax-4"},
-     [],ip_comm,#Port<0.3331>,httpd_conf__127_0_0_1__1206,"PUT",
-     "localhost:1206/a/b/c","/a/b/c","HTTP/1.1","PUT /a/b/c HTTP/1.1",
-     [{"accept","*/*"},{"host","localhost:1206"},{"user-agent","curl/7.30.0"}],
-     [],true}
+Distributed under the Apache License, Version 2.0.
 ```

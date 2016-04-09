@@ -1,10 +1,4 @@
-(defmodule barista-options
-  (import
-    (from proplists
-      (delete 2)
-      (get_value 2))
-    (from lutil-type
-      (rename-key 3)))
+(defmodule lmug-inets-opts
   (export all))
 
 (include-lib "clj/include/compose.lfe")

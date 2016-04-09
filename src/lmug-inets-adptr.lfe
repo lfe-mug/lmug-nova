@@ -1,12 +1,18 @@
-(defmodule barista
-  (import
-    (from proplists
-      (get_value 2))
-    (from lmug
-      (host->tuple 1)))
+(defmodule lmug-inets-adptr
+  (behaviour lmug-adptr)
   (export all))
 
-(defun lmug-handler-name () 'lmug-handler)
+(defun convert-request (request)
+  "Convert inets http request to lmug request."
+  'noop)
+
+(defun convert-response (request)
+  "Convert lmug response to inets http response."
+  'noop)
+
+(defun convert-handler (handler)
+  "Convert lmug handler to inets do/1 function."
+  'noop)
 
 (defun setup ()
   (lutil-file:mkdirs (lcfg:get-in '(barista httpd-conf log-dir)))
