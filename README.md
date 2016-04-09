@@ -17,6 +17,7 @@
 ##### Contents
 
 * [Introduction](#introduction-)
+  * [EWSAPI](#ewsapi-)
 * [Installation](#installation-)
 * [Documentation](#documentation-)
 * [Usage](#usage-)
