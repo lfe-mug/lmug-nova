@@ -1,61 +1,68 @@
 (defmodule lmug-inets-svr
+  (behaviour gen_server)
   (export all))
 
-(defun get-default-options ()
-  (orddict:from_list
-      `(#(modules (mod_log mod_disk_log lmug-barista-adapter)))))
+;;; config functions
 
-(defun get-default-handler ()
-  "Given an lmug request record, return a default response."
-  (lambda (x) (lmug-util:get-response x)))
+(defun server-name () (MODULE))
+(defun callback-module () (MODULE))
+(defun initial-state () '())
+(defun genserver-opts () '())
+(defun register-name () `#(local ,(server-name)))
+(defun unknown-command () #(error "Unknown command."))
 
-(defun run ()
-  "Run with the default handler and options."
-  (run (get-default-handler) '()))
+;;; gen_server implementation
 
-(defun run (handler)
-  "Run with the default options but a specific handler."
-  (run handler '()))
+(defun start ()
+  (gen_server:start (register-name)
+                    (callback-module)
+                    (initial-state)
+                    (genserver-opts)))
 
-(defun run (handler custom-options)
-  "Run with a specific handler and options."
-  (let ((options (lutil-type:orddict-merge
-                   (get-default-options)
-                   custom-options)))
-    (barista:run-barista handler options)))
+(defun stop ()
+  (gen_server:call (server-name) 'stop))
 
-(defun stop (arg)
-  (barista:stop-barista arg))
+;;; callback implementation
 
-(defun stop (arg-1 arg-2)
-  (barista:stop-barista arg-1 arg-2))
+(defun init (initial-state)
+  `#(ok ,initial-state))
 
-(defun do (httpd-mod-data)
-  "This is the function that the Erlang/OTP httpd server calls on every request
-  for each of the registered modules. In order for this to work, the barista
-  HTTP server needs to be configured with #(modules (... <module name>)) at the
-  end.
+(defun handle_cast
+  ((`#(set ,key ,value) state-data)
+    `#(noreply ,(cons `#(,key ,value) state-data))))
 
-  Note that, in order to call the handler here, we need to set up a 'handler
-  server' when we call the 'run' function. This will allow us to call the
-  configured handler later (i.e., here in the 'do' function).
+(defun handle_call
+  ((#(get all) _caller state-data)
+    `#(reply ,state-data ,state-data))
+  ((`#(get ,key) _caller state-data)
+    `#(reply ,(proplists:get_value key state-data) ,state-data))
+  (('stop _caller state-data)
+    `#(stop shutdown ok state-data))
+  ((message _caller state-data)
+    `#(reply ,(unknown-command) ,state-data)))
 
-  This function does the following, when it is called (on each HTTP request):
+(defun handle_info
+  ((`#(EXIT ,_pid normal) state-data)
+   `#(noreply ,state-data))
+  ((`#(EXIT ,pid ,reason) state-data)
+   (logjam:error "Process ~p exited! (Reason: ~p)~n" `(,pid ,reason))
+   `#(noreply ,state-data))
+  ((_msg state-data)
+   `#(noreply ,state-data)))
 
-   * looks up the PID for the handler loop
-   * calls the middleware function that converts the Erlang/OTP httpd arg data
-     to lmug request data
-   * sends a message to the handler loop with converted request data
-   * sets up a listener that will be called by the handler loop
-   * waits to reveive data from the handler loop (the data which will have been
-     produced by the handler function passed to run-barista/1 or run-barista/2)
-   * converts the passed lmug request data to the format expected by
-     Erlang/OTP httpd
-  "
-  (let ((handler-pid (whereis (lmug:handler-name))))
-    (! handler-pid
-       (tuple (self)
-              (lmug-util:httpd->lmug-request httpd-mod-data)))
-    (receive
-      ((tuple 'handler-output data)
-        `#(proceed ,(lmug-util:lmug->httpd-response data))))))
+(defun terminate (_reason _state-data)
+  'ok)
+
+(defun code_change (_old-version state _extra)
+  `#(ok ,state))
+
+;;; our server API
+
+(defun set-handler (handler)
+  (gen_server:cast (server-name) `#(set handler ,handler)))
+
+(defun get-data ()
+  (gen_server:call (server-name) #(get all)))
+
+(defun get-handler ()
+  (gen_server:call (server-name) #(get handler)))

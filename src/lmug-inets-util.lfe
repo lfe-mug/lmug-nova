@@ -4,6 +4,6 @@
 (defun get-version ()
   (lutil:get-app-version 'barista))
 
-(defun get-version ()
+(defun get-versions ()
   (++ (lutil:get-versions)
       `(#(barista ,(get-version)))))

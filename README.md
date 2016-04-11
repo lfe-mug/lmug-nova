@@ -60,10 +60,6 @@ lmug adaptor, the only ``new-data`` that is supported are of the following
 forms:
 
 ```lisp
-`(#(response #(,status-code ,body)))
-```
-or
-```lisp
 `(#(response #(response
                (#(code ,status-code)
                 #(,header-name ,header-value)
@@ -97,7 +93,28 @@ TBD
 
 ## Usage [&#x219F;](#contents)
 
-TBD
+Define an app with a middleware chain:
+
+```lisp
+> (include-lib "clj/include/compose.lfe")
+loaded-compose
+> (set app (-> (lmug:response)
+               (lmug-mw-identity:wrap)
+               (lmug-mw-content-type:wrap)
+               (lmug-mw-identity:wrap)))
+#Fun<lmug-mw-content-type.0.7090676>
+```
+
+```lisp
+> (set opts '(#(server_name "lmuginets")
+              #(document_root "/tmp")
+              #(server_root "/tmp")
+              #(port 5099)))
+```
+
+```lisp
+> (lmug-inets:run app opts)
+```
 
 
 ## License [&#x219F;](#contents)

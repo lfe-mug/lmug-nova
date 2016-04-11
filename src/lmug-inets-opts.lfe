@@ -3,70 +3,92 @@
 
 (include-lib "clj/include/compose.lfe")
 
-(defun get-cwd ()
-  (case (file:get_cwd)
-    (`#(ok ,dir) dir)
-    (x x)))
+(defun update (opts key value)
+  "Given a proplist, a key, and a value, prepend a new #(key value) to the
+  opts proplist. Subsequent calls to ``(proplist:get_value key opts)`` will
+  return the new value.
 
-(defun basedir ()
-  (let ((basedir (lcfg:get-in '(barista httpd-conf server-root))))
-    (case (car basedir)
-      (#\/ basedir)
-      (_ (filename:join (get-cwd) basedir)))))
+  This function signature is designed to be used with the ``->`` thrushing
+  macro."
+  (cons `#(,key ,value) opts))
 
-(defun docroot ()
-  (let ((docroot (lcfg:get-in '(barista httpd-conf docroot))))
-    (case (car docroot)
-      (#\/ docroot)
-      (_ (filename:join (get-cwd) docroot)))))
+(defun get-value (key proplist)
+  "The same as ``get-value/3``, with an empty list as the default value.
 
-(defun log-dir ()
-  (filename:join (basedir)
-                 (lcfg:get-in '(barista httpd-conf log-dir))))
+  This function signature is designed to be used with the ``->>`` thrushing
+  macro."
+  (get-value key '() proplist))
 
-(defun get-defaults ()
-  (orddict:from_list
-    `(#(ipfamily inet)
-      #(modules (mod_alias mod_auth mod_actions mod_dir
-                 mod_get mod_head mod_log mod_disk_log barista)))))
+(defun get-value (key default proplist)
+  "Get the value associated with a proplist key; if undefined, use the default
+  value instead.
 
-(defun add-defaults (options)
-  (lutil-type:orddict-merge (get-defaults)
-                            options))
+  This function signature is designed to be used with the ``->>`` thrushing
+  macro."
+  (proplists:get_value key proplist default))
 
-(defun get-config ()
-  (orddict:from_list (lcfg:get-in '(barista httpd-conf))))
+(defun prepend (opts key value)
+  "Given a proplist, a key, and a value, and assuming that the key points
+  to a sub-proplist, prepend a new value to the sub-proplist accessible
+  at the key and return an updated opts proplist with the key and updated
+  sub-proplist prepended to the opts proplist. Subsequent calls to
+  ``(proplist:get_value key opts)`` will return the new sub-proplist.
 
-(defun add-config (options)
-  (lutil-type:orddict-merge (get-config)
-                            options))
+  This function signature is designed to be used with the ``->`` thrushing
+  macro."
+  (cons (->> opts
+             (get-value key)
+             (cons value)
+             (tuple key))
+        opts))
 
-(defun get-computed ()
-  (orddict:from_list
-    `(#(server-root ,(basedir))
-      #(error-log ,(filename:join (log-dir)
-                                  (lcfg:get-in '(barista httpd-conf error-log))))
-      #(access-log ,(filename:join (log-dir)
-                                   (lcfg:get-in '(barista httpd-conf access-log))))
-      #(docroot ,(docroot)))))
+(defun append (back front)
+  "Given two lists, append the first to the second.
 
-(defun add-computed (options)
-  (lutil-type:orddict-merge (get-computed)
-                            options))
+  This function signature is designed to be used with the ``->>`` thrushing
+  macro."
+  (++ front back))
 
-(defun fixup (options)
-  "Let's rename the lmug-standard keys to ones that the OTP httpd module
-  expects to see."
-  (->> (orddict:from_list options) ; user options override all
-       (add-computed)              ; computed options from the config file are next
-       (add-config)                ; non-computed config items are lesser prio
-       (add-defaults)              ; defaults have the least prio
-       (rename-key 'host 'bind_address)
-       (rename-key 'docroot 'document_root)
-       (rename-key 'server-name 'server_name)
-       (rename-key 'server-root 'server_root)
-       (rename-key 'access-log 'transfer_log)
-       (rename-key 'error-log 'error_log)
-       (rename-key 'mime-types 'mime_types)
-       (rename-key 'index-files 'directory_index)
-       (rename-key 'nocache 'erl_script_nocache)))
+(defun append (opts key value)
+  "Given a proplist of options, get the list of items associated with ``key``,
+  append to those the list of items in ``value``, and update the options with
+  a this key-value pair.
+
+  This function signature is designed to be used with the ``->`` thrushing
+  macro."
+  (->> opts
+       (get-value key)
+       (append value)
+       (tuple key)
+       (list)
+       (append opts)))
+
+(defun add-module (opts mod)
+  "Add a module to the list of modules associated with the options data by the
+  ``modules`` key."
+  (append opts 'modules `(,mod)))
+
+(defun get-default-modules ()
+  "The default EWSAPI modules."
+  '(mod_alias mod_auth mod_esi mod_actions mod_cgi mod_dir mod_get mod_head
+    mod_log mod_disk_log))
+
+(defun get-minimal-modules ()
+  "The default EWSAPI modules."
+  '(mod_alias))
+
+(defun set-default-modules (opts)
+  "Set the default list of EWSAPI modules."
+  (update opts 'modules
+    (case (proplists:get_value 'modules opts)
+      ('undefined (get-default-modules))
+      ('() (get-default-modules))
+      (modules (++ (get-default-modules) modules)))))
+
+(defun set-minimal-modules (opts)
+  (update opts 'modules (get-minimal-modules)))
+
+(defun set-defaults (opts)
+  "Set all the EWSAPI option defaults."
+  (-> opts
+      (set-default-modules)))
