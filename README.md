@@ -7,7 +7,7 @@
 
 *An lmug adapter for the OTP inets web server*
 
-[![][lmug-logo]][lmug-logo-large]
+[![][logo]][logo-large]
 
 ##### Contents
 
