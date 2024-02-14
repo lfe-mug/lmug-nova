@@ -1,6 +1,8 @@
-(defmodule lmug-inets-svr
+(defmodule lmug-inets-state
   (behaviour gen_server)
   (export all))
+
+(include-lib "logjam/include/logjam.hrl")
 
 ;;; config functions
 
@@ -45,7 +47,7 @@
   ((`#(EXIT ,_pid normal) state-data)
    `#(noreply ,state-data))
   ((`#(EXIT ,pid ,reason) state-data)
-   (logjam:error "Process ~p exited! (Reason: ~p)~n" `(,pid ,reason))
+   (log-error "Process ~p exited! (Reason: ~p)~n" `(,pid ,reason))
    `#(noreply ,state-data))
   ((_msg state-data)
    `#(noreply ,state-data)))
@@ -56,7 +58,7 @@
 (defun code_change (_old-version state _extra)
   `#(ok ,state))
 
-;;; our server API
+;;; State API
 
 (defun set-handler (handler)
   (gen_server:cast (server-name) `#(set handler ,handler)))
@@ -66,3 +68,6 @@
 
 (defun get-handler ()
   (gen_server:call (server-name) #(get handler)))
+
+(defun call-handler (req)
+  (funcall (get-handler) req))

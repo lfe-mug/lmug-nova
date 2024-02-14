@@ -2,10 +2,10 @@
 {application, lmuginets,
  [
   %% A quick description of the application.
-  {description, "An lmug adapter for the OTP inets web server"},
+  {description, "An lmug adapter for Erlang/OTP inets httpd"},
 
   %% The version of the application
-  {vsn, "0.0.1"},
+  {vsn, "0.1.0"},
 
   %% All modules used by the application.
   {modules,
