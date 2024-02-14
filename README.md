@@ -1,18 +1,13 @@
 # lmug-inets
 
-[![img](https://travis-ci.org/lfe-mug/lmug-inets.svg)](https://travis-ci.org/lfe-mug/lmug-inets)
-[![img](https://img.shields.io/github/tag/lfe-mug/lmug-inets.svg)](https://github.com/lfe-mug/lmug-inets/releases/latest)
-[![img](https://img.shields.io/badge/erlang-%E2%89%A5R16B03-red.svg)](http://www.erlang.org/downloads)
-[![img](https://img.shields.io/badge/docs-67%25-green.svg)](http://lfe-mug.github.io/lmug-inets)
-[![img](https://img.shields.io/badge/license-Apache-blue.svg)](LICENSE)
-
-[![][lmug-logo]][lmug-logo-large]
-
-[lmug-logo]: priv/images/lmug-inets.png
-[lmug-logo-large]: priv/images/lmug-inets-large.png
+[![Build Status][gh-actions-badge]][gh-actions]
+[![LFE Versions][lfe-badge]][lfe]
+[![Erlang Versions][erlang-badge]][versions]
+[![Tags][github-tags-badge]][github-tags]
 
 *An lmug adapter for the OTP inets web server*
 
+[![][lmug-logo]][lmug-logo-large]
 
 ##### Contents
 
@@ -122,3 +117,16 @@ Copyright © 2016-2024, LFE Dragon Team
 
 Distributed under the Apache License, Version 2.0.
 ```
+
+[//]: ---Named-Links---
+
+[logo]: priv/images/lmug-inets.png
+[logo-large]: priv/images/lmug-inets-large.png
+[gh-actions-badge]: https://github.com/lfe-mug/lmug-inets/workflows/ci%2Fcd/badge.svg
+[gh-actions]: https://github.com/lfe-mug/lmug-inets/actions
+[lfe]: https://github.com/lfe/lfe
+[lfe-badge]: https://img.shields.io/badge/lfe-2.1-blue.svg
+[erlang-badge]: https://img.shields.io/badge/erlang-21%20to%2026-blue.svg
+[versions]: https://github.com/lfe-mug/lmug-inets/blob/master/.github/workflows/cicd.yml
+[github-tags]: https://github.com/lfe-mug/lmug-inets/tags
+[github-tags-badge]: https://img.shields.io/github/tag/lfe-mug/lmug-inets.svg
