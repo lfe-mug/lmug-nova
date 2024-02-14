@@ -56,14 +56,14 @@
   ""
   (logjam:set-dev-config)
   (application:ensure_all_started 'logjam)
-  (lmug-inets-state:start)
+  (lmug-state:start)
   (lmug-inets-state:set-handler lmug-handler)
   (inets:start)
   (let ((`#(ok ,pid) (inets:start 'httpd opts)))
     (log-debug "Server info: ~p~n" (list (httpd:info pid)))))
 
 (defun stop ()
-  (lmug-inets-state:stop)
+  (lmug-state:stop)
   (inets:stop))
 
 (defun version ()
