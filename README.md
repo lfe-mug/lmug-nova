@@ -41,7 +41,7 @@ Server API (EWSAPI).
 While lmug middleware accept handlers as arguments with these handlers each
 being functions in their own right (and which accept a request record as an
 argument), EWSAPI modules (the inets http version of "middleware") are a little
-more diverse. Unlike lumg middleware, they don't just return additional
+more diverse. Unlike lmug middleware, they don't just return additional
 handlers, rather they may return any one of the following (see
 [inets httpd Reference Manual](http://erlang.org/doc/man/httpd.html)):
 
@@ -56,8 +56,8 @@ some will expect data in one format and not in others, some will be used
 to prepare data for different middleware further down the chain.
 
 To keep things simple during the initial implementation of the inet http
-lmug adaptor, the only ``new-data`` that is supported are of the following
-forms:
+lmug adaptor, the only ``new-data`` that is supported has the following
+form:
 
 ```lisp
 `(#(response #(response
@@ -82,7 +82,7 @@ appropriately converts requests, responses, and handlers.
 
 ```erlang
 {deps, [
-   {lmuginets, {git, "https://github.com/lfe-mug/lmug-inets.git", {tag, "0.0.1"}}}
+   {lmuginets, "0.1.0"}}}
   ]}.
 ```
 
@@ -96,8 +96,6 @@ TBD
 Define an app with a middleware chain:
 
 ```lisp
-> (include-lib "clj/include/compose.lfe")
-loaded-compose
 > (set app (-> (lmug:response)
                (lmug-mw-identity:wrap)
                (lmug-mw-content-type:wrap)
@@ -113,14 +111,14 @@ loaded-compose
 ```
 
 ```lisp
-> (lmug-inets:run app opts)
+> (lmug-inets:start app opts)
 ```
 
 
 ## License [&#x219F;](#contents)
 
 ```
-Copyright © 2016 LFE Dragon Team
+Copyright © 2016-2024, LFE Dragon Team
 
 Distributed under the Apache License, Version 2.0.
 ```
