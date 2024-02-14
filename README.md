@@ -41,8 +41,10 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 
 ## Documentation [&#x219F;](#contents)
 
-TBD
-
+* [lmug Core Concepts](https://github.com/lfe-mug/lmug/blob/main/docs/core-concepts.md)
+* [lmug Specification](https://github.com/lfe-mug/lmug/blob/main/docs/lmug-spec.md)
+* [Usage Details for lmug adapters](https://github.com/lfe-mug/lmug/blob/main/docs/usage-details.md)
+* [inets EWSAPI and lmug](./docs/ewsapi.md)
 
 ## Usage [&#x219F;](#contents)
 
