@@ -35,7 +35,7 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 
 ```erlang
 {deps, [
-   {lmuginets, "0.1.0"}}}
+   {lmug-inets, "0.1.0", {pkg, lmug_inets}}
   ]}.
 ```
 
@@ -65,9 +65,34 @@ lfe> (set inets-opts `(#(document_root "/tmp")
 ```
 
 ```lisp
-lfe> (lmug-inets:start app opts)
+lfe> (lmug-inets:start app inets-opts)
 ```
 
+This can be tested from another terminal with `curl`:
+
+``` shell
+curl -v http://localhost:5099/response.txt
+```
+
+Which will give something like the following:
+
+``` shell
+*   Trying 127.0.0.1:5099...
+* Connected to localhost (127.0.0.1) port 5099 (#0)
+> GET /response.txt HTTP/1.1
+> Host: localhost:5099
+> User-Agent: curl/8.1.2
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Thu, 15 Feb 2024 22:29:34 GMT
+< Server: inets/9.1 (unix/darwin) OTP/26
+< X-Request-ID: 233220009500597629653337000383468273664
+< Content-Type: text/plain
+< Content-Length: 3
+<
+* Connection #0 to host localhost left intact
+```
 
 ## License [&#x219F;](#contents)
 

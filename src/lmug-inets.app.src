@@ -1,5 +1,5 @@
 %% -*- erlang -*-
-{application, lmuginets,
+{application, 'lmug-inets',
  [
   %% A quick description of the application.
   {description, "An lmug adapter for Erlang/OTP inets httpd"},
@@ -9,9 +9,7 @@
 
   %% All modules used by the application.
   {modules,
-   [
-    lmuginets
-   ]},
+   []},
 
   %% All of the registered names the application uses. This can be ignored.
   {registered, []},
@@ -32,6 +30,13 @@
 
   %% configuration parameters similar to those in the config file specified
   %% on the command line. can be fetched with gas:get_env
-  {env, []}
- ]
-}.
+  {env, []},
+
+  %% Package metadata
+  {pkg_name, lmug_inets},
+  {licenses, ["Apache 2.0"]},
+  {links, [
+    {"GitHub", "https://github.com/lfe-mug/lmug-inets"},
+    {"Hex", "https://hex.pm/packages/lmug_inets"}
+  ]}
+]}.
