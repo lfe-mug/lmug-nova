@@ -1,19 +1,17 @@
 (defmodule lmug-inets-header
   (export all))
 
-(defun strings->bins (headers)
-  (lists:map #'bins->atom-string/1 headers))
+(defun bins-map->proplist (headers)
+  (lists:map #'bins-tuple->vals/1 (maps:to_list headers)))
 
-(defun bins->proplist (headers)
-  (lists:map #'bins->atom-string/1 headers))
-
-(defun bins->atom-string
+(defun bins-tuple->vals
   ((`#(,name ,value))
-    `#(,(convert-header-name name) ,(binary_to_list value))))
+   (vals->strings-tuple name value)))
 
-(defun convert-header-name (name)
-  (clj:-> name
-          (binary:replace #"-" #"_")
-          (binary_to_list)
-          (string:to_lower)
-          (list_to_atom)))
+(defun vals->strings-tuple
+  ((name value) (when (and (is_list name) (is_list value)))
+   `#(,name ,value))
+  ((name value) (when (is_binary name))
+   (vals->strings-tuple (binary_to_list name) value))
+  ((name value) (when (is_binary value))
+   (vals->strings-tuple name (binary_to_list value))))

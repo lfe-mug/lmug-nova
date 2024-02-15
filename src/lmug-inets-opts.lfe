@@ -1,70 +1,8 @@
 (defmodule lmug-inets-opts
   (export all))
 
-(defun update (opts key value)
-  "Given a proplist, a key, and a value, prepend a new #(key value) to the
-  opts proplist. Subsequent calls to ``(proplist:get_value key opts)`` will
-  return the new value.
-
-  This function signature is designed to be used with the ``->`` thrushing
-  macro."
-  (cons `#(,key ,value) opts))
-
-(defun get-value (key proplist)
-  "The same as ``get-value/3``, with an empty list as the default value.
-
-  This function signature is designed to be used with the ``->>`` thrushing
-  macro."
-  (get-value key '() proplist))
-
-(defun get-value (key default proplist)
-  "Get the value associated with a proplist key; if undefined, use the default
-  value instead.
-
-  This function signature is designed to be used with the ``->>`` thrushing
-  macro."
-  (proplists:get_value key proplist default))
-
-(defun prepend (opts key value)
-  "Given a proplist, a key, and a value, and assuming that the key points
-  to a sub-proplist, prepend a new value to the sub-proplist accessible
-  at the key and return an updated opts proplist with the key and updated
-  sub-proplist prepended to the opts proplist. Subsequent calls to
-  ``(proplist:get_value key opts)`` will return the new sub-proplist.
-
-  This function signature is designed to be used with the ``->`` thrushing
-  macro."
-  (cons (clj:->> opts
-                 (get-value key)
-                 (cons value)
-                 (tuple key))
-        opts))
-
-(defun append (back front)
-  "Given two lists, append the first to the second.
-
-  This function signature is designed to be used with the ``->>`` thrushing
-  macro."
-  (++ front back))
-
-(defun append (opts key value)
-  "Given a proplist of options, get the list of items associated with ``key``,
-  append to those the list of items in ``value``, and update the options with
-  a this key-value pair.
-
-  This function signature is designed to be used with the ``->`` thrushing
-  macro."
-  (clj:->> opts
-           (get-value key)
-           (append value)
-           (tuple key)
-           (list)
-           (append opts)))
-
-(defun add-module (opts mod)
-  "Add a module to the list of modules associated with the options data by the
-  ``modules`` key."
-  (append opts 'modules `(,mod)))
+(defun server-name ()
+  "lmuginets")
 
 (defun default-modules ()
   "The default EWSAPI modules."
@@ -75,17 +13,32 @@
   "The default EWSAPI modules."
   '(mod_alias))
 
-(defun set-default-modules (opts)
-  "Set the default list of EWSAPI modules."
-  (update opts 'modules
-    (case (proplists:get_value 'modules opts)
-      ('undefined (default-modules))
-      ('() (default-modules))
-      (modules (++ (default-modules) modules)))))
-
-(defun set-minimal-modules (opts)
-  (update opts 'modules (minimal-modules)))
-
-(defun set (opts)
+(defun add-default-modules (opts)
   "Set all the EWSAPI option defaults."
-  (set-default-modules opts))
+  (++ opts
+      `(#(modules ,(default-modules)))))
+
+(defun add-default-mimetypes (opts)
+  (++ opts
+      `(#(mime_types ,(lmug:content-types->proplist)))))
+
+(defun add-logging (opts)
+  (++ opts
+      `(#(logger (#(error ,(list_to_atom (server-name)))))
+        #(log_format combined))))
+
+(defun add-server-tokens (opts)
+  (++ opts
+      '(#(server_tokens full))))
+
+(defun add-server-name (opts)
+  (++ opts
+      `(#(server_name ,(server-name)))))
+
+(defun add-default (opts)
+  (clj:-> opts
+          (add-default-modules)
+          (add-default-mimetypes)
+          (add-logging)
+          (add-server-tokens)
+          (add-server-name)))

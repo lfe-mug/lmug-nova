@@ -24,10 +24,10 @@
                   entity_body body) mod-data))
    (let ((`#(init_data #(,remote-port ,remote-addr) ,_ ,_) init-data))
      `#m(method ,(lmug:method method)
-                version ,http-version
-                url ,abs-uri
-                remote-addr ,remote-addr
-                headers ,(lmug:headers headers)
-                body ,(lmug:body body))))
+         version ,http-version
+         url ,abs-uri
+         remote-addr ,remote-addr
+         headers ,(lmug:headers headers)
+         body ,(lmug:body body))))
   ((_)
    #(err "Couldn't match args aginst inets record")))

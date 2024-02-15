@@ -51,22 +51,21 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 Define an app with a middleware chain:
 
 ```lisp
-> (set app (-> (lmug:response)
-               (lmug-mw-identity:wrap)
-               (lmug-mw-content-type:wrap)
-               (lmug-mw-identity:wrap)))
-#Fun<lmug-mw-content-type.0.7090676>
+lfe> (set app (clj:-> (lmug:app)
+                      (lmug-mw-identity:wrap)
+                      (lmug-mw-request-id:wrap)
+                      (lmug-mw-content-type:wrap)
+                      (lmug-mw-status-body:wrap)))
 ```
 
 ```lisp
-> (set opts '(#(server_name "lmuginets")
-              #(document_root "/tmp")
-              #(server_root "/tmp")
-              #(port 5099)))
+lfe> (set inets-opts `(#(document_root "/tmp")
+                       #(server_root "/tmp")
+                       #(port 5099)))
 ```
 
 ```lisp
-> (lmug-inets:start app opts)
+lfe> (lmug-inets:start app opts)
 ```
 
 
