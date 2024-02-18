@@ -22,12 +22,24 @@
                   ;;socket_type socket-type
                   ;;socket socket
                   entity_body body) mod-data))
-   (let ((`#(init_data #(,remote-port ,remote-addr) ,_ ,_) init-data))
-     `#m(method ,(lmug:method method)
-         version ,http-version
-         url ,abs-uri
-         remote-addr ,remote-addr
-         headers ,(lmug:headers headers)
-         body ,(lmug:body body))))
-  ((_)
-   #(err "Couldn't match args aginst inets record")))
+   (let* ((`#(init_data #(,remote-port ,remote-addr) ,_ ,_) init-data)
+          (req (http.request:new
+                (lmug:method method)
+                (parse-abs-url abs-uri)
+                (lmug:body body)
+                (lmug:headers headers))))
+     (clj:-> req
+             (mupd 'version (parse-http-version http-version))
+             (mupd 'remote-addr remote-addr))))
+  ((inets-req)
+   (let ((msg "Couldn't match args aginst inets record"))
+     (log-error "~s" (list msg))
+     #(err ,msg))))
+
+(defun parse-http-version (version-string)
+  ;; TODO implement this
+  version-string)
+
+(defun parse-abs-url (abs-uri)
+  ;; TODO implement this
+  (io_lib:format "http://~s" `(,abs-uri)))

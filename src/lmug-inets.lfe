@@ -10,8 +10,11 @@
   This is the means by which the EWSAPI request/response may be intercepted by
   lmug, allowing us to insert arbitrary middleware in the request processing
   path."
+  (log-debug "ewsapi-mod-record: ~p" (list ewsapi-mod-record))
   (let* ((req (lmug-inets-request:inets->map ewsapi-mod-record))
+         (_ (log-debug "Parsed request: ~p" (list req)))
          (resp (lmug-state:call-handler req))
+         (_ (log-debug "lmug response: ~p" (list resp)))
          (inets-resp (lmug-inets-response:map->inets resp)))
     (log-debug "Converted inets/http response: ~p" (list inets-resp))
     `#(proceed ,inets-resp)))
@@ -20,6 +23,7 @@
   "Start the inets http server."
   (logjam:set-dev-config)
   (application:ensure_all_started 'logjam)
+  (application:ensure_all_started 'inets)
   (lmug-state:start)
   (lmug-state:set-handler handler)
   (let* ((opts (lmug-inets-opts:add-default opts))

@@ -52,10 +52,10 @@ Define an app with a middleware chain:
 
 ```lisp
 lfe> (set app (clj:-> (lmug:app)
-                      (lmug-mw-identity:wrap)
                       (lmug-mw-request-id:wrap)
                       (lmug-mw-content-type:wrap)
-                      (lmug-mw-status-body:wrap)))
+                      (lmug-mw-status-body:wrap)
+                      (lmug-mw-log-request:wrap #m(log-level notice))))
 ```
 
 ```lisp
@@ -71,7 +71,7 @@ lfe> (lmug-inets:start app inets-opts)
 This can be tested from another terminal with `curl`:
 
 ``` shell
-curl -v http://localhost:5099/response.txt
+curl -v "http://alice:sekr1t@localhost:5099/response.txt"
 ```
 
 Which will give something like the following:
@@ -92,6 +92,7 @@ Which will give something like the following:
 < Content-Length: 3
 <
 * Connection #0 to host localhost left intact
+200
 ```
 
 ## License [&#x219F;](#contents)
