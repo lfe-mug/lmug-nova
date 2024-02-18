@@ -35,7 +35,7 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 
 ```erlang
 {deps, [
-   {lmug-inets, "0.1.0", {pkg, lmug_inets}}
+   {lmug-inets, "0.1.1", {pkg, lmug_inets}}
   ]}.
 ```
 
@@ -59,8 +59,7 @@ lfe> (set app (clj:-> (lmug:app)
 ```
 
 ```lisp
-lfe> (set inets-opts `(#(document_root "/tmp")
-                       #(server_root "/tmp")
+lfe> (set inets-opts `(#(server_name "lmuginets")
                        #(port 5099)))
 ```
 
