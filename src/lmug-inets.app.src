@@ -38,5 +38,6 @@
   {links, [
     {"GitHub", "https://github.com/lfe-mug/lmug-inets"},
     {"Hex", "https://hex.pm/packages/lmug_inets"}
-  ]}
+  ]},
+  {exclude_files, ["priv/images/*"]}
 ]}.
