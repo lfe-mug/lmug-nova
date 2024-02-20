@@ -32,3 +32,9 @@ rebar/*
 rebar3.crashdump
 tramp
 rebar.lock
+/static
+/public
+/public_html
+/html
+/web
+/www

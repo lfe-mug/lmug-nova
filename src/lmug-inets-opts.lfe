@@ -4,6 +4,12 @@
 (defun server-name ()
   "lmuginets")
 
+(defun port ()
+  5099)
+
+(defun doc-root ()
+  ".")
+
 (defun default-modules ()
   "The default EWSAPI modules."
   '(mod_alias mod_auth mod_esi mod_actions mod_cgi mod_dir mod_get mod_head

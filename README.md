@@ -48,23 +48,35 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 
 ## Usage [&#x219F;](#contents)
 
-Define an app with a middleware chain:
+Define an app with a middleware chain. First, let's make a little static resource content:
+
+``` shell
+mkdir static
+echo "<html><body>lmug-inets dev server</body></html>" > static/index.html
+```
 
 ```lisp
 lfe> (set app (clj:-> (lmug:app)
                       (lmug-mw-request-id:wrap)
                       (lmug-mw-content-type:wrap)
+                      (lmug-mw-resource:wrap #m(doc-root "static"))
                       (lmug-mw-status-body:wrap)
                       (lmug-mw-log-request:wrap #m(log-level notice))))
 ```
 
 ```lisp
-lfe> (set inets-opts `(#(server_name "lmuginets")
-                       #(port 5099)))
+(set app (clj:-> (lmug:app)
+                 (lmug-mw-resource:wrap)))
+
+(lmug-inets:start app #m(port 5099))
+(lmug-state:get-metadata)
+
+(set app (clj:-> (lmug:app)
+                 (lmug-mw-resource:wrap #m(doc-root "../"))))
 ```
 
 ```lisp
-lfe> (lmug-inets:start app inets-opts)
+lfe> (lmug-inets:start app #m(port 5099))
 ```
 
 This can be tested from another terminal with `curl`:
@@ -78,20 +90,56 @@ Which will give something like the following:
 ``` shell
 *   Trying 127.0.0.1:5099...
 * Connected to localhost (127.0.0.1) port 5099 (#0)
+* Server auth using Basic with user 'alice'
 > GET /response.txt HTTP/1.1
 > Host: localhost:5099
+> Authorization: Basic YWxpY2U6c2VrcjF0
 > User-Agent: curl/8.1.2
 > Accept: */*
 >
 < HTTP/1.1 200 OK
-< Date: Thu, 15 Feb 2024 22:29:34 GMT
+< Date: Tue, 20 Feb 2024 01:41:26 GMT
 < Server: inets/9.1 (unix/darwin) OTP/26
-< X-Request-ID: 233220009500597629653337000383468273664
+< X-Request-ID: 11548829628205025075258581696865370112
 < Content-Type: text/plain
 < Content-Length: 3
 <
 * Connection #0 to host localhost left intact
 200
+```
+
+Then, to test the static resource middleware:
+
+``` shell
+curl -v "http://localhost:5099/index.html"
+```
+
+or:
+
+``` shell
+curl -v "http://localhost:5099/"
+```
+
+Will give something like the following:
+
+``` shell
+*   Trying 127.0.0.1:5099...
+* Connected to localhost (127.0.0.1) port 5099 (#0)
+> GET /index.html HTTP/1.1
+> Host: localhost:5099
+> User-Agent: curl/8.1.2
+> Accept: */*
+>
+< HTTP/1.1 200 OK
+< Date: Tue, 20 Feb 2024 01:42:54 GMT
+< Server: inets/9.1 (unix/darwin) OTP/26
+< Content-Type: text/html
+< Etag: tCTQL448
+< Content-Length: 48
+< Last-Modified: Mon, 19 Feb 2024 22:11:55 GMT
+<
+<html><body>lmug-inets dev server</body></html>
+* Connection #0 to host localhost left intact
 ```
 
 ## License [&#x219F;](#contents)
