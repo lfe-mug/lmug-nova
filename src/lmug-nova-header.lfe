@@ -1,4 +1,4 @@
-(defmodule lmug-inets-header
+(defmodule lmug-nova-header
   (export all))
 
 (defun bins-map->proplist (headers)

@@ -1,4 +1,4 @@
-PROJECT = lmug-inets
+PROJECT = lmug-nova
 ROOT_DIR = $(shell pwd)
 REPO = $(shell git config --get remote.origin.url)
 LFE = _build/default/lib/lfe/bin/lfe

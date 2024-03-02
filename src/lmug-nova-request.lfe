@@ -1,14 +1,10 @@
-(defmodule lmug-inets-request
+(defmodule lmug-nova-request
   (export all))
 
-(include-lib "inets/include/httpd.hrl")
 (include-lib "logjam/include/logjam.hrl")
 
-(defun inets->map
-  "Convert an inets/http request (mod record) to an lmug request.
-
-  Note that the incoming request when using Erlang's inets/http server is the
-  `mod` record defined in the inets httpd include."
+(defun nova->map
+  "Convert a Nova request to an lmug request."
   (((= (match-mod init_data init-data
                   ;;data ewsapi-resp
                   ;;config_db cfg
@@ -31,8 +27,8 @@
      (clj:-> req
              (mupd 'version (parse-http-version http-version))
              (mupd 'remote-addr remote-addr))))
-  ((inets-req)
-   (let ((msg "Couldn't match args aginst inets record"))
+  ((nova-req)
+   (let ((msg "Couldn't match args aginst the Nova record"))
      (log-error "~s" (list msg))
      #(err ,msg))))
 

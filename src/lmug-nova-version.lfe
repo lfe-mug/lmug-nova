@@ -1,10 +1,10 @@
-(defmodule lmug-inets-version
+(defmodule lmug-nova-version
   (export
    (get 0)
    (all 0)))
 
 (defun get ()
-  (get 'lmuginets))
+  (get 'lmugnova))
 
 (defun get (app-name)
   (application:load app-name)
@@ -29,7 +29,8 @@
     #(driver ,(erlang:system_info 'driver_version))))
 
 (defun all ()
-  (lists:append `((,(version+name 'lmuginets))
+  (lists:append `((,(version+name 'lmugnova))
+                  (,(version+name 'nova))
                   ,(versions-langs)
                   ,(versions-rebar)
                   (,(version-arch)))))

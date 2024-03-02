@@ -1,18 +1,17 @@
-# lmug-inets
+# lmug-nova
 
 [![Build Status][gh-actions-badge]][gh-actions]
 [![LFE Versions][lfe-badge]][lfe]
 [![Erlang Versions][erlang-badge]][versions]
 [![Tags][github-tags-badge]][github-tags]
 
-*An lmug adapter for the OTP inets web server*
+*An lmug adapter for the Nova web server*
 
 [![][logo]][logo-large]
 
 ##### Contents
 
 * [Introduction](#introduction-)
-  * [EWSAPI](#ewsapi-)
 * [Installation](#installation-)
 * [Documentation](#documentation-)
 * [Usage](#usage-)
@@ -25,17 +24,15 @@ Like Clojure's Ring before it, LFE's lmug provides the LFE programmer a means
 for creating middleware between an HTTP server request and the response that
 is returned to the client.
 
-In particular, lmug-inets implements an lmug adaptor for use with the
-Erlang/OTP inets http server, allowing lmug middleware to run on the OTP inets
-web server by adapting lmug requests, responses, and handlers to the Erlang Web
-Server API (EWSAPI). For more backgound and some detailed context, be sure to 
-checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
+In particular, lmug-nova implements an lmug adaptor for use with the
+Nova framework's HTTP server, allowing lmug middleware to run on it by adapting
+lmug requests, responses, and handlers to the Nova API.
 
 ## Installation [&#x219F;](#contents)
 
 ```erlang
 {deps, [
-   {lmug-inets, "0.1.1", {pkg, lmug_inets}}
+   {lmug-nova, "0.1.0", {pkg, lmug_nova}}
   ]}.
 ```
 
@@ -44,7 +41,6 @@ checkout [our EWSAPI & lmug notes](./docs/ewsapi.md).
 * [lmug Core Concepts](https://github.com/lfe-mug/lmug/blob/main/docs/core-concepts.md)
 * [lmug Specification](https://github.com/lfe-mug/lmug/blob/main/docs/lmug-spec.md)
 * [Usage Details for lmug adapters](https://github.com/lfe-mug/lmug/blob/main/docs/usage-details.md)
-* [inets EWSAPI and lmug](./docs/ewsapi.md)
 
 ## Usage [&#x219F;](#contents)
 
@@ -52,7 +48,7 @@ Define an app with a middleware chain. First, let's make a little static resourc
 
 ``` shell
 mkdir static
-echo "<html><body>lmug-inets dev server</body></html>" > static/index.html
+echo "<html><body>lmug-nova dev server</body></html>" > static/index.html
 ```
 
 ```lisp
@@ -68,15 +64,36 @@ lfe> (set app (clj:-> (lmug:app)
 (set app (clj:-> (lmug:app)
                  (lmug-mw-resource:wrap)))
 
-(lmug-inets:start app #m(port 5099))
+(lmug-nova:start app #m(port 5099))
 (lmug-state:get-metadata)
 
 (set app (clj:-> (lmug:app)
                  (lmug-mw-resource:wrap #m(doc-root "../"))))
+
+(set app (clj:-> (lmug:app)
+                 (lmug-mw-resource:wrap #m(doc-root "priv"))))
+
+(set app (clj:-> (lmug:app)
+                 (lmug-mw-resource:wrap #m(doc-root "../lmug/priv"))))
+
+(set app (clj:-> (lmug:app)
+                 (lmug-mw-resource:wrap
+                     #m(doc-root "../lmug/priv"
+                        watcher? true))))
+
+(lmug-state:get-metadata)
+
+(application:ensure_all_started 'fs)
+(fs:subscribe)
+(fs_demo:start_looper)
+;; do stuff on filesystem
+(flush)
+
+(fs:start_link '
 ```
 
 ```lisp
-lfe> (lmug-inets:start app #m(port 5099))
+lfe> (lmug-nova:start app #m(port 5099))
 ```
 
 This can be tested from another terminal with `curl`:
@@ -99,7 +116,7 @@ Which will give something like the following:
 >
 < HTTP/1.1 200 OK
 < Date: Tue, 20 Feb 2024 01:41:26 GMT
-< Server: inets/9.1 (unix/darwin) OTP/26
+< Server: XXX/TBD
 < X-Request-ID: 11548829628205025075258581696865370112
 < Content-Type: text/plain
 < Content-Length: 3
@@ -132,13 +149,13 @@ Will give something like the following:
 >
 < HTTP/1.1 200 OK
 < Date: Tue, 20 Feb 2024 01:42:54 GMT
-< Server: inets/9.1 (unix/darwin) OTP/26
+< Server: XXX/TBD
 < Content-Type: text/html
 < Etag: tCTQL448
 < Content-Length: 48
 < Last-Modified: Mon, 19 Feb 2024 22:11:55 GMT
 <
-<html><body>lmug-inets dev server</body></html>
+<html><body>lmug-nova dev server</body></html>
 * Connection #0 to host localhost left intact
 ```
 
@@ -152,13 +169,13 @@ Distributed under the Apache License, Version 2.0.
 
 [//]: ---Named-Links---
 
-[logo]: priv/images/lmug-inets.png
-[logo-large]: priv/images/lmug-inets-large.png
-[gh-actions-badge]: https://github.com/lfe-mug/lmug-inets/workflows/ci%2Fcd/badge.svg
-[gh-actions]: https://github.com/lfe-mug/lmug-inets/actions
+[logo]: priv/images/lmug.png
+[logo-large]: priv/images/lmug-large.png
+[gh-actions-badge]: https://github.com/lfe-mug/lmug-nova/workflows/ci%2Fcd/badge.svg
+[gh-actions]: https://github.com/lfe-mug/lmug-nova/actions
 [lfe]: https://github.com/lfe/lfe
 [lfe-badge]: https://img.shields.io/badge/lfe-2.1-blue.svg
 [erlang-badge]: https://img.shields.io/badge/erlang-21%20to%2026-blue.svg
-[versions]: https://github.com/lfe-mug/lmug-inets/blob/master/.github/workflows/cicd.yml
-[github-tags]: https://github.com/lfe-mug/lmug-inets/tags
-[github-tags-badge]: https://img.shields.io/github/tag/lfe-mug/lmug-inets.svg
+[versions]: https://github.com/lfe-mug/lmug-nova/blob/master/.github/workflows/cicd.yml
+[github-tags]: https://github.com/lfe-mug/lmug-nova/tags
+[github-tags-badge]: https://img.shields.io/github/tag/lfe-mug/lmug-nova.svg

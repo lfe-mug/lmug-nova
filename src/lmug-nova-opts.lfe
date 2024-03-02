@@ -1,28 +1,14 @@
-(defmodule lmug-inets-opts
+(defmodule lmug-nova-opts
   (export all))
 
 (defun server-name ()
-  "lmuginets")
+  "lmugnova")
 
 (defun port ()
   5099)
 
 (defun doc-root ()
   ".")
-
-(defun default-modules ()
-  "The default EWSAPI modules."
-  '(mod_alias mod_auth mod_esi mod_actions mod_cgi mod_dir mod_get mod_head
-    mod_log mod_disk_log lmug-inets))
-
-(defun minimal-modules ()
-  "The default EWSAPI modules."
-  '(mod_alias))
-
-(defun add-default-modules (opts)
-  "Set all the EWSAPI option defaults."
-  (++ opts
-      `(#(modules ,(default-modules)))))
 
 (defun add-default-mimetypes (opts)
   (++ opts
@@ -43,7 +29,6 @@
 
 (defun add-default (opts)
   (clj:-> opts
-          (add-default-modules)
           (add-default-mimetypes)
           (add-logging)
           (add-server-tokens)

@@ -1,21 +1,21 @@
-(defmodule lmug-inets-response
+(defmodule lmug-nova-response
   (export all))
 
 (include-lib "logjam/include/logjam.hrl")
 
-(defun map->inets
-  "Convert lmug/LFE http response map to an inets http response."
+(defun map->nova
+  "Convert lmug/LFE http response map to a Nova response."
   (((= `#m(status ,status headers ,headers body ,body) resp))
    (log-debug "Converting resp: ~p" (list resp))
    `(#(response
-       #(response ,(headers->inets status headers body)
+       #(response ,(headers->nova status headers body)
                   ,body)))))
 
-(defun headers->inets (status headers body)
+(defun headers->nova (status headers body)
   (let* ((ct-key #"Content-Type")
          (ct (content-type headers ct-key))
          (hs (maps:without `(,ct-key) headers))
-         (hs (lmug-inets-header:bins-map->proplist hs)))
+         (hs (lmug-nova-header:bins-map->proplist hs)))
     (++ hs
         `(#(code ,status)
           #(content_type ,ct)

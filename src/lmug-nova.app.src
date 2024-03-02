@@ -1,8 +1,8 @@
 %% -*- erlang -*-
-{application, 'lmug-inets',
+{application, 'lmug-nova',
  [
   %% A quick description of the application.
-  {description, "An lmug adapter for Erlang/OTP inets httpd"},
+  {description, "An lmug adapter for the Nova web server"},
 
   %% The version of the application
   {vsn, "0.1.1"},
@@ -33,11 +33,11 @@
   {env, []},
 
   %% Package metadata
-  {pkg_name, lmug_inets},
+  {pkg_name, lmug_nova},
   {licenses, ["Apache 2.0"]},
   {links, [
-    {"GitHub", "https://github.com/lfe-mug/lmug-inets"},
-    {"Hex", "https://hex.pm/packages/lmug_inets"}
+    {"GitHub", "https://github.com/lfe-mug/lmug-nova"},
+    {"Hex", "https://hex.pm/packages/lmug_nova"}
   ]},
   {exclude_files, ["priv/images/*"]}
 ]}.

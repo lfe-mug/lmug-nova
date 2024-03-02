@@ -1,4 +1,4 @@
-(defmodule lmug-inets-tests
+(defmodule lmug-nova-tests
   (behaviour ltest-unit)
   (export all))
 
